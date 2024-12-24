@@ -4,12 +4,10 @@ import UIKit
 import PlaygroundSupport
 
 class MyViewController : UIViewController {
-    let keyboard: [[String]] = [
-        ["ㅂ", "ㅈ", "ㄷ", "ㄱ", "ㅅ", "ㅛ", "ㅕ", "ㅑ", "ㅐ", "ㅔ"],
-        ["ㅁ", "ㄴ", "ㅇ", "ㄹ", "ㅎ", "ㅗ", "ㅓ", "ㅏ", "ㅣ"],
-        ["↑", "ㅋ", "ㅌ", "ㅊ", "ㅍ", "ㅠ", "ㅜ", "ㅡ", "←"],
-        ["숫자", "영어", "스페이스", "엔터"]
-    ]
+
+    var keyboard: KeyboardType = .korean
+    
+    
     override func viewDidLoad() {
         let myView = UIView()
         myView.addSubview(collectionView)
@@ -44,32 +42,36 @@ class MyViewController : UIViewController {
 extension MyViewController: UICollectionViewDataSource {
     //    섹션에 나타나는 셀개수
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return keyboard[section].count
+        return keyboard.keyMap[section].count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: KeyboardCollectionViewCell.identifier, for: indexPath) as? KeyboardCollectionViewCell else {
             return UICollectionViewCell()
         }
-        let text = keyboard[indexPath.section][indexPath.row]
+        let text = keyboard.keyMap[indexPath.section][indexPath.row]
         cell.configure(text: text)
         return cell
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return keyboard.count
+        return keyboard.keyMap.count
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let text = keyboard[indexPath.section][indexPath.row]
-        print("키보드입력: \(text)")
+        let text = keyboard.keyMap[indexPath.section][indexPath.row]
+        // Shift 처리
+        if text == "↑" {
+            keyboard.shift()
+            collectionView.reloadData()
+        }        
     }
 }
 
 extension MyViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var width = view.frame.width / 10
-        let text = keyboard[indexPath.section][indexPath.row]
+        let text = keyboard.keyMap[indexPath.section][indexPath.row]
         // 스페이스바 크기 설정
         if text == "스페이스" {
             return CGSize(width: (width * 10) - (width * 3), height: 40)
